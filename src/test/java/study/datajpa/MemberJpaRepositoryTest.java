@@ -9,6 +9,8 @@ import study.datajpa.entity.Member;
 import study.datajpa.repository.MemberJpaRepository;
 import study.datajpa.repository.MemberRepository;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.*;
 
 
@@ -41,6 +43,31 @@ public class MemberJpaRepositoryTest {
         assertThat(findMember).isEqualTo(member); //JPA 엔티티 동일성 보장
     }
 
+    @Test
+    public void basicCRUD(){
+        Member member = new Member("member1");
+        Member member2 = new Member("member2");
+        memberJpaRepository.save(member);
+        memberJpaRepository.save(member2);
+
+
+        Member findmember = memberJpaRepository.findById(member.getId()).get();
+        Member findmember2 = memberJpaRepository.findById(member2.getId()).get();
+        assertThat(findmember).isEqualTo(member);
+        assertThat(findmember2).isEqualTo(member2);
+
+        List<Member> all = memberJpaRepository.findAll();
+        assertThat(all.size()).isEqualTo(2);
+
+        long count = memberJpaRepository.count();
+        assertThat(count).isEqualTo(2);
+
+        memberJpaRepository.delete(member);
+        memberJpaRepository.delete(member2);
+
+        long deletecount = memberJpaRepository.count();
+        assertThat(deletecount).isEqualTo(0);
+    }
 
 
 }
