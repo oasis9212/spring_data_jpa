@@ -70,4 +70,18 @@ public class MemberJpaRepositoryTest {
     }
 
 
+    @Test
+    public void testNamedQuery(){
+        Member member1=new Member("Member1",10 );
+        Member member2=new Member("Member2",20 );
+        memberJpaRepository.save(member1);
+        memberJpaRepository.save(member2);
+
+        List<Member> result = memberJpaRepository.findByUsername("Member1");
+        Member findmember= result.get(0);
+        assertThat(findmember).isEqualTo(result);
+    }
+
+
+
 }
