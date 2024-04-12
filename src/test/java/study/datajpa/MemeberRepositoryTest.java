@@ -3,6 +3,10 @@ package study.datajpa;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
@@ -163,8 +167,76 @@ public class MemeberRepositoryTest {
         Member membername=  memberRepository.findMemberByUsername("Member2");
         Optional<Member> optionalMember= memberRepository.findOptionalByUsername("Member3");
 
+    }
 
+    @Test
+    public  void paging1(){
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 10));
+        memberRepository.save(new Member("member3", 10));
+        memberRepository.save(new Member("member4", 10));
+        memberRepository.save(new Member("member5", 10));
+        memberRepository.save(new Member("member6", 10));
+
+        PageRequest request = PageRequest.of(0,3, Sort.by(Sort.Direction.DESC, "username"));
+
+        Page<Member> m2=  memberRepository.findByAge(10,request);
+
+        Page<MemberDto> MemberDtomap=  m2.map(member -> new MemberDto(member.getId(), member.getUsername() , null));
+        // 해당 리스트를 가져오고 싶다면  getContent
+        List<Member> content = m2.getContent();
+        content.stream().forEach(e -> System.out.println(e.toString()));
+
+        System.out.println(m2.getTotalElements()+":: getTotalElements"); // totalcount 값을 가져온다.
+        // 페이지의 번호 가져오기.   사이즈가 3이니깐  0
+        System.out.println(m2.getNumber()+":: getNumber");
+        // 총페이지 갯수
+        System.out.println(m2.getTotalPages()+":: getTotalPages");
+
+        System.out.println(m2.isFirst()+":: isFirst");
+        System.out.println(m2.hasNext()+":: getTotalPages");
 
     }
 
+//    @Test
+//    public  void paging2() {
+//        memberRepository.save(new Member("member1", 10));
+//        memberRepository.save(new Member("member2", 10));
+//        memberRepository.save(new Member("member3", 10));
+//        memberRepository.save(new Member("member4", 10));
+//        memberRepository.save(new Member("member5", 10));
+//        memberRepository.save(new Member("member6", 10));
+//
+//        PageRequest request = PageRequest.of(0,3, Sort.by(Sort.Direction.DESC, "username"));
+//        // 슬라이스는 페이지 사이즈 에  +1 더해서 가져온다.
+//        Slice<Member> m2=  memberRepository.findByAge(10,request);
+//
+//    //    System.out.println(m2.getTotalElements()+":: getTotalElements"); // totalcount 값을 가져온다.
+//
+//        System.out.println(m2.getNumber()+":: getNumber");
+//
+//  //      System.out.println(m2.getTotalPages()+":: getTotalPages");
+//
+//        System.out.println(m2.isFirst()+":: isFirst");
+//        System.out.println(m2.hasNext()+":: getTotalPages");
+//
+//    }
+
+
+    @Test
+    public void bulkUpdate(){
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 11));
+        memberRepository.save(new Member("member3", 12));
+        memberRepository.save(new Member("member4", 13));
+        memberRepository.save(new Member("member5", 14));
+        memberRepository.save(new Member("member6", 15));
+
+        int result=memberRepository.bulkAgePlus(13);
+
+        List<Member> re=memberRepository.findByUsername("member5");
+        Member member= re.get(0);// 그대로 15살 영속성으로 유지되어 있다. OSIV 참조
+
+        assertThat(result).isEqualTo(3);
+    }
 }
