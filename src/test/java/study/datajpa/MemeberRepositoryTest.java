@@ -1,5 +1,7 @@
 package study.datajpa;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,6 +34,8 @@ public class MemeberRepositoryTest {
     @Autowired
     TeamRepository teamRepository;
 
+    @PersistenceContext
+    EntityManager em;
     @Test
     public void basicCRUD(){
         Member member = new Member("member1");
@@ -239,4 +243,60 @@ public class MemeberRepositoryTest {
 
         assertThat(result).isEqualTo(3);
     }
+
+
+    @Test
+    public  void findMemberLazy(){
+        Team teama = new Team("teamA");
+        Team teamb = new Team("teamB");
+        teamRepository.save(teama);
+        teamRepository.save(teamb);
+        Member member1= new Member("Member1",10 ,teama);
+        Member member2= new Member("Member2",10 ,teamb);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+        em.flush();
+        em.clear();
+
+        List<Member> members=  memberRepository.findEntityGraphByUsername("Member1");
+        members.stream().forEach(e-> System.out.println(e.getUsername()));
+
+    }
+
+
+    @Test
+    public  void queryHint(){
+        Member member1=new Member("Member1",10);
+        memberRepository.save(member1);
+        em.flush();
+        em.clear();
+
+     //   Member memberfind=memberRepository.findById(member1.getId()).get();  // 여기서 값변경하면 자동 변경감지가 일으키니
+        Member memberfind=memberRepository.findReadOnlyByUsername("Member1");
+        // readOnly 하는 방법을 하는법 파악
+        memberfind.setUsername("member2");
+        em.flush();
+    }
+
+
+    @Test
+    public  void queryLock(){
+        Member member1=new Member("Member1",10);
+        memberRepository.save(member1);
+        em.flush();
+        em.clear();
+
+
+        List<Member> memberfind=memberRepository.findLockByUsername("Member1");
+    }
+    //select
+    //        m1_0.memebe_id,
+    //        m1_0.age,
+    //        m1_0.team_id,
+    //        m1_0.username
+    //    from
+    //        member m1_0
+    //    where
+    //        m1_0.username=? for update
+    // select for update 관련 나도 잘모른다.
 }
