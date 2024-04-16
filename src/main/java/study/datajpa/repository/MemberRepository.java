@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface MemberRepository extends JpaRepository<Member,Long> {
+public interface MemberRepository extends JpaRepository<Member,Long>, MemberRepositoryCustom {
     List<Member> findByUsername(String username);
 
     // 관려상 규칙 으로 제작 가능하다.
@@ -83,4 +83,6 @@ public interface MemberRepository extends JpaRepository<Member,Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<Member> findLockByUsername(String username);
+
+    List<Member> findMemberCustom();
 }

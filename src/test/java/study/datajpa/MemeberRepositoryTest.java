@@ -299,4 +299,29 @@ public class MemeberRepositoryTest {
     //    where
     //        m1_0.username=? for update
     // select for update 관련 나도 잘모른다.
+
+
+    @Test
+    public void callCustom(){
+        List<Member> memberfind= memberRepository.findMemberCustom();
+    }
+
+
+    @Test
+    public void JpaMakeDate(){
+        Member member=new Member("member");
+        memberRepository.save(member);
+
+        member.setUsername("member2");
+
+        em.flush();
+        em.clear();
+
+       Member member1= memberRepository.findById(member.getId()).get();
+
+        System.out.println(member1.getCreateDate());
+        System.out.println(member1.getLastModfiiedDate());
+        System.out.println(member1.getCreateBy());
+        System.out.println(member1.getUpdateBy());
+    }
 }
