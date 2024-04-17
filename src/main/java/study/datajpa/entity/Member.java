@@ -12,7 +12,8 @@ import lombok.*;
         name = "Member.findByUsername",
         query = "select m from Member m where m.username = :username"
         )
-public class Member extends  BaseEntity {
+//extends  BaseEntity
+public class Member  {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "memebe_id")
     private Long id;
