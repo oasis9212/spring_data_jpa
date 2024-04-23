@@ -15,7 +15,7 @@ import lombok.*;
 //extends  BaseEntity
 public class Member  {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "memebe_id")
+    @Column(name = "member_id")
     private Long id;
     private String username;
 

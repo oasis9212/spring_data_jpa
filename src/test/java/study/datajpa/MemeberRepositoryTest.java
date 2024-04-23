@@ -5,17 +5,13 @@ import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
-import study.datajpa.repository.MemberRepository;
-import study.datajpa.repository.TeamRepository;
+import study.datajpa.repository.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -307,21 +303,84 @@ public class MemeberRepositoryTest {
     }
 
 
+//    @Test
+//    public void JpaMakeDate(){
+//        Member member=new Member("member");
+//        memberRepository.save(member);
+//
+//        member.setUsername("member2");
+//
+//        em.flush();
+//        em.clear();
+//
+//       Member member1= memberRepository.findById(member.getId()).get();
+//
+//        System.out.println(member1.getCreateDate());
+//        System.out.println(member1.getLastModfiiedDate());
+//        System.out.println(member1.getCreateBy());
+//        System.out.println(member1.getUpdateBy());
+//    }
+
+
     @Test
-    public void JpaMakeDate(){
-        Member member=new Member("member");
-        memberRepository.save(member);
-
-        member.setUsername("member2");
-
+    public void QueryByExameple(){
+        Team teamA= new Team("teamA");
+        em.persist(teamA);
+        Member m1= new Member("m1",11,teamA);
+        Member m2= new Member("m2",11,teamA);
+        em.persist(m1);
+        em.persist(m2);
         em.flush();
         em.clear();
 
-       Member member1= memberRepository.findById(member.getId()).get();
+        // 쿼리 by example 예시
+        Member member= new Member("m1");
 
-        System.out.println(member1.getCreateDate());
-        System.out.println(member1.getLastModfiiedDate());
-        System.out.println(member1.getCreateBy());
-        System.out.println(member1.getUpdateBy());
+        ExampleMatcher exampleMatcher = ExampleMatcher.matching().withIgnorePaths("age");
+
+        Example<Member> example =   Example.of(member);
+
+        List<Member> res = memberRepository.findAll(example);
+
+        assertThat(res.get(0).getUsername()).isEqualTo("m1");
+
+
+    }
+
+
+    @Test
+    public void projections(){
+        Team teamA= new Team("teamA");
+        em.persist(teamA);
+        Member m1= new Member("m1",11,teamA);
+        Member m2= new Member("m2",11,teamA);
+        em.persist(m1);
+        em.persist(m2);
+        em.flush();
+        em.clear();
+
+       List<NestedClosedProjections> res= memberRepository.findProjectionsByUsername("m1",NestedClosedProjections.class);
+       res.stream().forEach(e -> System.out.println(e));
+
+    }
+
+    @Test
+    public void findByProjectionQuery(){
+        Team teamA= new Team("teamA");
+        em.persist(teamA);
+        Member m1= new Member("m1",11,teamA);
+        Member m2= new Member("m2",11,teamA);
+        em.persist(m1);
+        em.persist(m2);
+        em.flush();
+        em.clear();
+
+       Page<MemberProjection> res= memberRepository.findByProjectionQuery(PageRequest.of(0,10));
+       List<MemberProjection> content= res.getContent();
+       for(MemberProjection memberProjection: content){
+           System.out.println("memberProjection =" + memberProjection.getUsername() );
+           System.out.println("memberProjection =" + memberProjection.getTeamName());
+       }
+
     }
 }
